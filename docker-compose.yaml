@@ -1,0 +1,53 @@
+version: "3.9"
+
+services:
+  redis:
+    image: docker.io/library/redis:latest
+    ports:
+      - "6379:6379"
+    networks:
+      - petbattle-network
+
+  pet-service:
+    build:
+      context: ./pet_service
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    networks:
+      - petbattle-network
+
+  pet-service-dapr:
+    image: "daprio/daprd:1.14.4"
+    command: ["/daprd", "--app-id", "petservice", "--app-port", "8000", "--dapr-http-port", "3500", "--components-path", "/components"]
+    volumes:
+      - "./components:/components"
+    depends_on:
+      - pet-service
+      - redis
+    network_mode: "service:pet-service"
+
+  battle-service:
+    build:
+      context: ./battle_service
+      dockerfile: Dockerfile
+    environment:
+      - DAPR_API_PROTOCOL=grpc
+    ports:
+      - "8001:8001"
+    networks:
+      - petbattle-network
+
+  battle-service-dapr:
+    image: "daprio/daprd:1.14.4"
+    command: ["/daprd", "--app-id", "battleservice", "--app-port", "8001", "--dapr-http-port", "3500", "--components-path", "/components"]
+    volumes:
+      - "./components:/components"
+    depends_on:
+      - battle-service
+      - redis
+    network_mode: "service:battle-service"
+
+networks:
+  petbattle-network:
+    driver: bridge

@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "battle-service"
+version = "0.1.0"
+description = "Battle Service for Pet Battle"
+authors = ["Your Name <your.email@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.110.0"
+uvicorn = "^0.29.0"
+dapr = "1.13.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
